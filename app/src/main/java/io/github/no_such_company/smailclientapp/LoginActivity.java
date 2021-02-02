@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.List;
 
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
+import io.github.no_such_company.smailclientapp.pojo.mailList.MailBox;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -67,6 +69,10 @@ public class LoginActivity extends AppCompatActivity {
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!checkCredentialsUserInput()){
+                    return;
+                }
+
                 RequestBody requestBody = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
                         .addFormDataPart("user", editTextTextPersonName.getText().toString())
@@ -79,12 +85,24 @@ public class LoginActivity extends AppCompatActivity {
                         .build();
 
                 try (Response response = client.newCall(request).execute()) {
-                    response.body().string();
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    MailBox mailBox = objectMapper.readValue(response.body().string(), MailBox.class);
+                    System.out.println(mailBox.getFolder().get(0).getFolderName());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Toast.makeText(LoginActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    private boolean checkCredentialsUserInput(){
+        if (editTextTextPersonName.getText().length() == 0 ||
+                editTextTextPassword.getText().toString().length() == 0||
+                editTextTextPassword2.getText().toString().length() == 0) {
+            Toast.makeText(LoginActivity.this, "Check credentials", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
 }
