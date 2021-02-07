@@ -25,6 +25,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static io.github.no_such_company.smailclientapp.helper.AlternateHostHelper.getFinalDestinationHost;
+
 public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerViewAdapter.ItemClickListener {
 
     private User user;
@@ -42,14 +44,6 @@ public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerV
 
         OkHttpClient client = new OkHttpClient();
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         try{
             user = (User) getIntent().getSerializableExtra("user");
         } catch (Exception e){
@@ -69,21 +63,21 @@ public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerV
                 .addFormDataPart("user", user.getAddress())
                 .addFormDataPart("hash", user.getPasswd())
                 .build();
-
+        try{
         Request request = new Request.Builder()
-                .url("https://" + user.getAddress().split("//:")[0] + "/inbox/mails")
+                .url(getFinalDestinationHost(user.getAddress().split("//:")[0]) + "/inbox/mails")
                 .post(requestBody)
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
+            Response response = client.newCall(request).execute();
             ObjectMapper objectMapper = new ObjectMapper();
             MailBox mailBox = objectMapper.readValue(response.body().string(), MailBox.class);
             adapter = new MailBoxRecyclerViewAdapter(this, mailBox.getFolder());
+            adapter.setClickListener(this);
+            recyclerView.setAdapter(adapter);
         } catch (Exception e){
 
         }
-        adapter.setClickListener(this);
-        recyclerView.setAdapter(adapter);
     }
 
     @Override

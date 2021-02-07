@@ -14,6 +14,7 @@ import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
@@ -23,6 +24,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import static io.github.no_such_company.smailclientapp.helper.AlternateHostHelper.getFinalDestinationHost;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -40,15 +43,15 @@ public class LoginActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_login);
-        User user = (User) getIntent().getSerializableExtra("user");
+        final User[] user = {(User) getIntent().getSerializableExtra("user")};
 
         editTextTextPersonName = findViewById(R.id.editTextTextPersonName);
         editTextTextPassword = findViewById(R.id.editTextTextPassword);
         editTextTextPassword2 = findViewById(R.id.editTextTextPassword2);
 
-        if(user != null) {
-            editTextTextPassword.setText(user.getPasswd());
-            editTextTextPersonName.setText(user.getAddress());
+        if (user[0] != null) {
+            editTextTextPassword.setText(user[0].getPasswd());
+            editTextTextPersonName.setText(user[0].getAddress());
         }
 
         PermissionListener permissionlistener = new PermissionListener() {
@@ -82,23 +85,25 @@ public class LoginActivity extends AppCompatActivity {
                         .addFormDataPart("hash", editTextTextPassword.getText().toString())
                         .build();
 
-                Request request = new Request.Builder()
-                        .url("https://" + editTextTextPersonName.getText().toString().split("//:")[0] + "/inbox/mails")
-                        .post(requestBody)
-                        .build();
+                try {
+                    Request request = null;
+                    request = new Request.Builder()
+                            .url(getFinalDestinationHost(editTextTextPersonName.getText().toString().split("//:")[0]) + "/inbox/mails")
+                            .post(requestBody)
+                            .build();
 
-                try (Response response = client.newCall(request).execute()) {
-                    ObjectMapper objectMapper = new ObjectMapper();
+
+                    Response response = client.newCall(request).execute();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    user[0] = new User();
+                    user[0].setAddress(editTextTextPersonName.getText().toString());
+                    user[0].setPasswd(editTextTextPassword.getText().toString());
+                    user[0].setKeyPass(editTextTextPassword2.getText().toString());
 
-                    user.setAddress(editTextTextPersonName.getText().toString());
-                    user.setPasswd(editTextTextPassword.getText().toString());
-                    user.setKeyPass(editTextTextPassword2.getText().toString());
-
-                    intent.putExtra("user", user);
+                    intent.putExtra("user", user[0]);
                     startActivity(intent);
 
-                } catch (IOException e) {
+                } catch (Exception e) {
                     Toast.makeText(LoginActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
                 }
             }
