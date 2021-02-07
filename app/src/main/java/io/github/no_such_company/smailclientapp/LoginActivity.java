@@ -1,6 +1,7 @@
 package io.github.no_such_company.smailclientapp;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -45,8 +46,10 @@ public class LoginActivity extends AppCompatActivity {
         editTextTextPassword = findViewById(R.id.editTextTextPassword);
         editTextTextPassword2 = findViewById(R.id.editTextTextPassword2);
 
-        editTextTextPassword.setText(user.getPasswd());
-        editTextTextPersonName.setText(user.getAddress());
+        if(user != null) {
+            editTextTextPassword.setText(user.getPasswd());
+            editTextTextPersonName.setText(user.getAddress());
+        }
 
         PermissionListener permissionlistener = new PermissionListener() {
             @Override
@@ -69,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!checkCredentialsUserInput()){
+                if (!checkCredentialsUserInput()) {
                     return;
                 }
 
@@ -80,14 +83,21 @@ public class LoginActivity extends AppCompatActivity {
                         .build();
 
                 Request request = new Request.Builder()
-                        .url("http://" + editTextTextPersonName.getText().toString().split("//:")[0] + ":1337/inbox/mails")
+                        .url("https://" + editTextTextPersonName.getText().toString().split("//:")[0] + "/inbox/mails")
                         .post(requestBody)
                         .build();
 
                 try (Response response = client.newCall(request).execute()) {
                     ObjectMapper objectMapper = new ObjectMapper();
-                    MailBox mailBox = objectMapper.readValue(response.body().string(), MailBox.class);
-                    System.out.println(mailBox.getFolder().get(0).getFolderName());
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+
+                    user.setAddress(editTextTextPersonName.getText().toString());
+                    user.setPasswd(editTextTextPassword.getText().toString());
+                    user.setKeyPass(editTextTextPassword2.getText().toString());
+
+                    intent.putExtra("user", user);
+                    startActivity(intent);
+
                 } catch (IOException e) {
                     Toast.makeText(LoginActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
                 }
@@ -95,9 +105,9 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private boolean checkCredentialsUserInput(){
+    private boolean checkCredentialsUserInput() {
         if (editTextTextPersonName.getText().length() == 0 ||
-                editTextTextPassword.getText().toString().length() == 0||
+                editTextTextPassword.getText().toString().length() == 0 ||
                 editTextTextPassword2.getText().toString().length() == 0) {
             Toast.makeText(LoginActivity.this, "Check credentials", Toast.LENGTH_SHORT).show();
             return false;

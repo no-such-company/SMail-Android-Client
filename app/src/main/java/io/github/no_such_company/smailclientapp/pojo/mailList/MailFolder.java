@@ -1,16 +1,10 @@
 package io.github.no_such_company.smailclientapp.pojo.mailList;
 
+import java.util.List;
+
 public class MailFolder {
-    private String[] mails;
     private String folderName;
-
-    public String[] getMails() {
-        return mails;
-    }
-
-    public void setMails(String[] mails) {
-        this.mails = mails;
-    }
+    private List<Mails> mails;
 
     public String getFolderName() {
         return folderName;
@@ -18,5 +12,13 @@ public class MailFolder {
 
     public void setFolderName(String folderName) {
         this.folderName = folderName;
+    }
+
+    public List<Mails> getMails() {
+        return mails;
+    }
+
+    public void setMails(List<Mails> mails) {
+        this.mails = mails;
     }
 }

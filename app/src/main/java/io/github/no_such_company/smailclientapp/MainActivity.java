@@ -16,6 +16,8 @@ import io.github.no_such_company.smailclientapp.pojo.credentials.User;
 
 public class MainActivity extends AppCompatActivity {
 
+    private User user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -33,14 +35,20 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-
-        User user = fetchUserFromStorage();
-        if(user.getKeyPass() == null || user.getPasswd() == null){
+        try{
+            user = (User) getIntent().getSerializableExtra("user");
+        } catch (Exception e){
+            user = fetchUserFromStorage();
+        }
+        if(user == null || user.getKeyPass() == null || user.getPasswd() == null){
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             intent.putExtra("user", user);
             startActivity(intent);
+        } else {
+            Intent intent = new Intent(MainActivity.this, MailsActivity.class);
+            intent.putExtra("user", user);
+            startActivity(intent);
         }
-
     }
 
     @Override
