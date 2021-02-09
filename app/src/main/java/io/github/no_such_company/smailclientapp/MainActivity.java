@@ -13,7 +13,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
+import static io.github.no_such_company.smailclientapp.helper.AlternateHostHelper.getFinalDestinationHost;
 import static io.github.no_such_company.smailclientapp.helper.TypeHelper.stringToBool;
 
 public class MainActivity extends AppCompatActivity {
@@ -45,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         if (user == null) {
             user = fetchUserFromStorage();
         }
-        if (user == null || user.getKeyPass() == null || user.getPasswd() == null) {
+        if (user == null || user.getKeyPass() == null || user.getPasswd() == null || user.getAddress() == null || !checkCredentials(user.getAddress(), user.getPasswd())) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             intent.putExtra("user", user);
             startActivity(intent);
@@ -84,6 +90,28 @@ public class MainActivity extends AppCompatActivity {
         user.setSwitch3(stringToBool(sharedPreferences.getString("sw3", "false")));
 
         return user;
+    }
+
+    private boolean checkCredentials(String userName, String pass) {
+        OkHttpClient client = new OkHttpClient();
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("user", userName)
+                .addFormDataPart("hash", pass)
+                .build();
+
+        try {
+            Request request = null;
+            request = new Request.Builder()
+                    .url(getFinalDestinationHost(userName.split("//:")[0]) + "/inbox/mails")
+                    .post(requestBody)
+                    .build();
+            Response response = client.newCall(request).execute();
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 
 
