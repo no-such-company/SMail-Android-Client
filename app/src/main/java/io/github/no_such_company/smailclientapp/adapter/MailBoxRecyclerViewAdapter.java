@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -43,9 +44,6 @@ public class MailBoxRecyclerViewAdapter extends RecyclerView.Adapter<MailBoxRecy
         return mData.size();
     }
 
-    public void setClickListener(MailsActivity mailsActivity) {
-    }
-
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView myTextView;
@@ -67,7 +65,7 @@ public class MailBoxRecyclerViewAdapter extends RecyclerView.Adapter<MailBoxRecy
     }
 
     // allows clicks events to be caught
-    void setClickListener(ItemClickListener itemClickListener) {
+    public void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 

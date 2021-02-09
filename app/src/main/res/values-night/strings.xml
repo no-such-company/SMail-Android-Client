@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="store_username">store Username</string>
+    <string name="store_password">store Password</string>
+    <string name="store_keypass">store Keypass</string>
+</resources>

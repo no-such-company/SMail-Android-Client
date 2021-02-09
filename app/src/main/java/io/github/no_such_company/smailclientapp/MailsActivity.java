@@ -33,6 +33,8 @@ public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerV
 
     MailBoxRecyclerViewAdapter adapter;
 
+    private MailBox mailBox;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -71,7 +73,7 @@ public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerV
 
             Response response = client.newCall(request).execute();
             ObjectMapper objectMapper = new ObjectMapper();
-            MailBox mailBox = objectMapper.readValue(response.body().string(), MailBox.class);
+            mailBox = objectMapper.readValue(response.body().string(), MailBox.class);
             adapter = new MailBoxRecyclerViewAdapter(this, mailBox.getFolder());
             adapter.setClickListener(this);
             recyclerView.setAdapter(adapter);
@@ -82,7 +84,7 @@ public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerV
 
     @Override
     public void onItemClick(View view, int position) {
-        Toast.makeText(this, "You clicked " + adapter.getItem(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "You clicked " + mailBox.getFolder().get(position).getFolderName() + " on row number " + position, Toast.LENGTH_SHORT).show();
     }
 
 
@@ -97,6 +99,7 @@ public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerV
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            System.out.println(id);
             return true;
         }
 

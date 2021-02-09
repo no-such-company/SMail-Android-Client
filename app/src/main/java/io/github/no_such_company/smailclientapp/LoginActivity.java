@@ -2,11 +2,13 @@ package io.github.no_such_company.smailclientapp;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,12 +28,14 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static io.github.no_such_company.smailclientapp.helper.AlternateHostHelper.getFinalDestinationHost;
+import static io.github.no_such_company.smailclientapp.helper.TypeHelper.boolToString;
 
 public class LoginActivity extends AppCompatActivity {
 
     EditText editTextTextPersonName;
     EditText editTextTextPassword;
     EditText editTextTextPassword2;
+    Switch  switch1, switch2, switch3;
     OkHttpClient client;
 
     @Override
@@ -48,10 +52,17 @@ public class LoginActivity extends AppCompatActivity {
         editTextTextPersonName = findViewById(R.id.editTextTextPersonName);
         editTextTextPassword = findViewById(R.id.editTextTextPassword);
         editTextTextPassword2 = findViewById(R.id.editTextTextPassword2);
+        switch1 = findViewById(R.id.switch1);
+        switch2 = findViewById(R.id.switch2);
+        switch3 = findViewById(R.id.switch3);
 
         if (user[0] != null) {
             editTextTextPassword.setText(user[0].getPasswd());
+            editTextTextPassword2.setText(user[0].getKeyPass());
             editTextTextPersonName.setText(user[0].getAddress());
+            switch1.setChecked(user[0].isSwitch1());
+            switch2.setChecked(user[0].isSwitch2());
+            switch3.setChecked(user[0].isSwitch3());
         }
 
         PermissionListener permissionlistener = new PermissionListener() {
@@ -99,6 +110,25 @@ public class LoginActivity extends AppCompatActivity {
                     user[0].setAddress(editTextTextPersonName.getText().toString());
                     user[0].setPasswd(editTextTextPassword.getText().toString());
                     user[0].setKeyPass(editTextTextPassword2.getText().toString());
+
+                    SharedPreferences sharedPreferences = getSharedPreferences("SMailClient", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                    if(switch1.isChecked()){
+                        editor.putString("user", user[0].getAddress());
+                    }
+                    if(switch2.isChecked()){
+                        editor.putString("pw", user[0].getPasswd());
+                    }
+                    if(switch3.isChecked()){
+                        editor.putString("kp", user[0].getKeyPass());
+                    }
+
+                    editor.putString("sw1", boolToString(switch1.isChecked()));
+                    editor.putString("sw2", boolToString(switch2.isChecked()));
+                    editor.putString("sw3", boolToString(switch3.isChecked()));
+                    editor.apply();
+
 
                     intent.putExtra("user", user[0]);
                     startActivity(intent);

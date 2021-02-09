@@ -14,6 +14,8 @@ import android.view.MenuItem;
 
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
 
+import static io.github.no_such_company.smailclientapp.helper.TypeHelper.stringToBool;
+
 public class MainActivity extends AppCompatActivity {
 
     private User user;
@@ -35,12 +37,15 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-        try{
+        try {
             user = (User) getIntent().getSerializableExtra("user");
-        } catch (Exception e){
+        } catch (Exception e) {
+
+        }
+        if (user == null) {
             user = fetchUserFromStorage();
         }
-        if(user == null || user.getKeyPass() == null || user.getPasswd() == null){
+        if (user == null || user.getKeyPass() == null || user.getPasswd() == null) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             intent.putExtra("user", user);
             startActivity(intent);
@@ -68,11 +73,18 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private User fetchUserFromStorage(){
+    private User fetchUserFromStorage() {
         User user = new User();
-        SharedPreferences sharedPreferences = getSharedPreferences("SMail_client", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("SMailClient", MODE_PRIVATE);
         user.setAddress(sharedPreferences.getString("user", null));
         user.setPasswd(sharedPreferences.getString("pw", null));
+        user.setKeyPass(sharedPreferences.getString("kp", null));
+        user.setSwitch1(stringToBool(sharedPreferences.getString("sw1", "false")));
+        user.setSwitch2(stringToBool(sharedPreferences.getString("sw2", "false")));
+        user.setSwitch3(stringToBool(sharedPreferences.getString("sw3", "false")));
+
         return user;
     }
+
+
 }
