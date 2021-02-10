@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 
+import io.github.no_such_company.smailclientapp.handler.PGPPlugKeyHandler;
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
 import io.github.no_such_company.smailclientapp.pojo.mailList.MailBox;
 import okhttp3.MultipartBody;
@@ -106,10 +107,14 @@ public class LoginActivity extends AppCompatActivity {
 
                     Response response = client.newCall(request).execute();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    PGPPlugKeyHandler keyHandler = new PGPPlugKeyHandler();
+
                     user[0] = new User();
                     user[0].setAddress(editTextTextPersonName.getText().toString());
                     user[0].setPasswd(editTextTextPassword.getText().toString());
                     user[0].setKeyPass(editTextTextPassword2.getText().toString());
+                    user[0].setPublicKeyRing(keyHandler.fetchPublicKeyRingFromHost(user[0]));
+                    user[0].setPrivateKeyRing(keyHandler.fetchPrivateKeyRingFromHost(user[0]));
 
                     SharedPreferences sharedPreferences = getSharedPreferences("SMailClient", MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();

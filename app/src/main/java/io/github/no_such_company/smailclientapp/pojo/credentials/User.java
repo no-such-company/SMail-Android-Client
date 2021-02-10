@@ -1,5 +1,8 @@
 package io.github.no_such_company.smailclientapp.pojo.credentials;
 
+import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.PGPSecretKey;
+
 import java.io.Serializable;
 
 public class User implements Serializable {
@@ -7,9 +10,14 @@ public class User implements Serializable {
     private String address;
     private String passwd;
     private String keyPass;
+
     private boolean switch1;
     private boolean switch2;
     private boolean switch3;
+
+    private PGPPublicKey publicKeyRing;
+    private PGPSecretKey privateKeyRing;
+
 
     public String getAddress() {
         return address;
@@ -35,11 +43,8 @@ public class User implements Serializable {
         this.keyPass = keyPass;
     }
 
-    public void storeCredentials() {
-
-    }
-
-    public void regenerateCredentials() {
+    public String getHost(){
+        return address.split("//:")[0];
     }
 
     public boolean isSwitch1() {
@@ -64,5 +69,21 @@ public class User implements Serializable {
 
     public void setSwitch3(boolean switch3) {
         this.switch3 = switch3;
+    }
+
+    public PGPPublicKey getPublicKeyRing() {
+        return publicKeyRing;
+    }
+
+    public void setPublicKeyRing(PGPPublicKey publicKeyRing) {
+        this.publicKeyRing = publicKeyRing;
+    }
+
+    public PGPSecretKey getPrivateKeyRing() {
+        return privateKeyRing;
+    }
+
+    public void setPrivateKeyRing(PGPSecretKey privateKeyRing) {
+        this.privateKeyRing = privateKeyRing;
     }
 }
