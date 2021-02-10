@@ -3,8 +3,6 @@ package io.github.no_such_company.smailclientapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,7 +38,7 @@ public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerV
 
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_mail_list);
+        setContentView(R.layout.fragment_mail_folder_list);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 

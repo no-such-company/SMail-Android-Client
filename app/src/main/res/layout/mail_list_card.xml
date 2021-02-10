@@ -6,16 +6,30 @@
     android:layout_height="wrap_content">
 
 
-    <TextView
-        android:layout_width="200dp"
-        android:id="@+id/folderName"
-        android:textSize="16sp"
-        android:layout_marginStart="20dp"
-        android:text="First Exam"
-        android:textColor="@color/black"
-        android:layout_marginEnd="20dp"
-        android:maxLines="1"
-        android:layout_marginTop="15dp"
-        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/senderName"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="20dp"
+            android:maxLines="1"
+            android:text="First Exam"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/subject"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="TextView" />
+    </LinearLayout>
 
 </RelativeLayout>

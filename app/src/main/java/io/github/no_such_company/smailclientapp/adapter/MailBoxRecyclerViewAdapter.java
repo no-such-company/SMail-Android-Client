@@ -6,11 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
-import io.github.no_such_company.smailclientapp.MailsActivity;
 import io.github.no_such_company.smailclientapp.R;
 import io.github.no_such_company.smailclientapp.pojo.mailList.MailFolder;
 
@@ -27,7 +25,7 @@ public class MailBoxRecyclerViewAdapter extends RecyclerView.Adapter<MailBoxRecy
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = mInflater.inflate(R.layout.mail_list_card, parent, false);
+        View view = mInflater.inflate(R.layout.mail_folder_list_card, parent, false);
         return new ViewHolder(view);
     }
 
@@ -50,7 +48,7 @@ public class MailBoxRecyclerViewAdapter extends RecyclerView.Adapter<MailBoxRecy
 
         ViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.folderName);
+            myTextView = itemView.findViewById(R.id.senderName);
             itemView.setOnClickListener(this);
         }
 
