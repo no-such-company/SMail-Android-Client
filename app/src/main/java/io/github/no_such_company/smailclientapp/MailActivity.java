@@ -27,20 +27,16 @@ import okhttp3.Response;
 
 import static io.github.no_such_company.smailclientapp.helper.AlternateHostHelper.getFinalDestinationHost;
 
-public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerViewAdapter.ItemClickListener {
+public class MailActivity extends AppCompatActivity {
 
     private User user;
-
-    MailBoxRecyclerViewAdapter adapter;
-
-    private MailBox mailBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_mail_folder_list);
+        setContentView(R.layout.activity_new_mail);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -52,7 +48,7 @@ public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerV
             user = fetchUserFromStorage();
         }
         if(user.getKeyPass() == null || user.getPasswd() == null){
-            Intent intent = new Intent(MailsActivity.this, MainActivity.class);
+            Intent intent = new Intent(MailActivity.this, MainActivity.class);
             intent.putExtra("user", user);
             startActivity(intent);
         }
@@ -61,42 +57,20 @@ public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerV
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MailsActivity.this, MailActivity.class);
-                intent.putExtra("user", user);
-                startActivity(intent);
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
 
-        RecyclerView recyclerView = findViewById(R.id.folderNamesRecyle);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("user", user.getAddress())
-                .addFormDataPart("hash", user.getPasswd())
-                .build();
-        try{
-        Request request = new Request.Builder()
-                .url(getFinalDestinationHost(user.getAddress().split("//:")[0]) + "/inbox/mails")
-                .post(requestBody)
-                .build();
-
-            Response response = client.newCall(request).execute();
-            ObjectMapper objectMapper = new ObjectMapper();
-            mailBox = objectMapper.readValue(response.body().string(), MailBox.class);
-            adapter = new MailBoxRecyclerViewAdapter(this, mailBox.getFolder());
-            adapter.setClickListener(this);
-            recyclerView.setAdapter(adapter);
-        } catch (Exception e){
-
-        }
+        FloatingActionButton fab2 = findViewById(R.id.floatingActionButton2);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
     }
-
-    @Override
-    public void onItemClick(View view, int position) {
-        Toast.makeText(this, "You clicked " + mailBox.getFolder().get(position).getFolderName() + " on row number " + position, Toast.LENGTH_SHORT).show();
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
