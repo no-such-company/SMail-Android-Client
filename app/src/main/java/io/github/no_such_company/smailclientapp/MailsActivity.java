@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.no_such_company.smailclientapp.adapter.MailBoxRecyclerViewAdapter;
+import io.github.no_such_company.smailclientapp.handler.SharedPreferencesHandler;
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
 import io.github.no_such_company.smailclientapp.pojo.mailList.MailBox;
 import okhttp3.MultipartBody;
@@ -49,7 +50,7 @@ public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerV
         try{
             user = (User) getIntent().getSerializableExtra("user");
         } catch (Exception e){
-            user = fetchUserFromStorage();
+            user = new SharedPreferencesHandler(this.getApplicationContext()).fetchUserObjectFromStorage();
         }
         if(user.getKeyPass() == null || user.getPasswd() == null){
             Intent intent = new Intent(MailsActivity.this, MainActivity.class);
@@ -114,13 +115,5 @@ public class MailsActivity extends AppCompatActivity implements MailBoxRecyclerV
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private User fetchUserFromStorage(){
-        User user = new User();
-        SharedPreferences sharedPreferences = getSharedPreferences("SMail_client", MODE_PRIVATE);
-        user.setAddress(sharedPreferences.getString("user", null));
-        user.setPasswd(sharedPreferences.getString("pw", null));
-        return user;
     }
 }

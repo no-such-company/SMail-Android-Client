@@ -12,11 +12,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.no_such_company.smailclientapp.adapter.MailBoxRecyclerViewAdapter;
+import io.github.no_such_company.smailclientapp.handler.MailSendHandler;
+import io.github.no_such_company.smailclientapp.handler.SharedPreferencesHandler;
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
 import io.github.no_such_company.smailclientapp.pojo.mailList.MailBox;
 import okhttp3.MultipartBody;
@@ -30,6 +33,9 @@ import static io.github.no_such_company.smailclientapp.helper.AlternateHostHelpe
 public class MailActivity extends AppCompatActivity {
 
     private User user;
+    private EditText recipientsInput;
+    private EditText subjectInput;
+    private EditText messageInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,16 +44,20 @@ public class MailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_mail);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        recipientsInput = findViewById(R.id.reciepients_new_mail);
+        subjectInput = findViewById(R.id.subject_new_mail);
+        messageInput = findViewById(R.id.new_mail_text);
+
         setSupportActionBar(toolbar);
 
         OkHttpClient client = new OkHttpClient();
 
-        try{
+        try {
             user = (User) getIntent().getSerializableExtra("user");
-        } catch (Exception e){
-            user = fetchUserFromStorage();
+        } catch (Exception e) {
+            user = new SharedPreferencesHandler(this.getApplicationContext()).fetchUserObjectFromStorage();
         }
-        if(user.getKeyPass() == null || user.getPasswd() == null){
+        if (user.getKeyPass() == null || user.getPasswd() == null) {
             Intent intent = new Intent(MailActivity.this, MainActivity.class);
             intent.putExtra("user", user);
             startActivity(intent);
@@ -57,8 +67,15 @@ public class MailActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                MailSendHandler mailSendHandler = new MailSendHandler(
+                        recipientsInput.getText().toString(),
+                        subjectInput.getText().toString(),
+                        messageInput.getText().toString(),
+                        user);
+
+                if(mailSendHandler.isVerified()){
+                    mailSendHandler.send();
+                }
             }
         });
 
@@ -66,8 +83,7 @@ public class MailActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                finish();
             }
         });
     }
@@ -88,13 +104,5 @@ public class MailActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private User fetchUserFromStorage(){
-        User user = new User();
-        SharedPreferences sharedPreferences = getSharedPreferences("SMail_client", MODE_PRIVATE);
-        user.setAddress(sharedPreferences.getString("user", null));
-        user.setPasswd(sharedPreferences.getString("pw", null));
-        return user;
     }
 }

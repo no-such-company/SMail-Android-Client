@@ -113,6 +113,7 @@ public class LoginActivity extends AppCompatActivity {
                     user[0].setAddress(editTextTextPersonName.getText().toString());
                     user[0].setPasswd(editTextTextPassword.getText().toString());
                     user[0].setKeyPass(editTextTextPassword2.getText().toString());
+
                     user[0].setPublicKeyRing(keyHandler.fetchPublicKeyRingFromHost(user[0]));
                     user[0].setPrivateKeyRing(keyHandler.fetchPrivateKeyRingFromHost(user[0]));
 

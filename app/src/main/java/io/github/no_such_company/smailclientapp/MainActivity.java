@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import io.github.no_such_company.smailclientapp.handler.SharedPreferencesHandler;
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
         if (user == null) {
-            user = fetchUserFromStorage();
+            user = new SharedPreferencesHandler(this.getApplicationContext()).fetchUserObjectFromStorage();
         }
         if (user == null || user.getKeyPass() == null || user.getPasswd() == null || user.getAddress() == null || !checkCredentials(user.getAddress(), user.getPasswd())) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -77,19 +78,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private User fetchUserFromStorage() {
-        User user = new User();
-        SharedPreferences sharedPreferences = getSharedPreferences("SMailClient", MODE_PRIVATE);
-        user.setAddress(sharedPreferences.getString("user", null));
-        user.setPasswd(sharedPreferences.getString("pw", null));
-        user.setKeyPass(sharedPreferences.getString("kp", null));
-        user.setSwitch1(stringToBool(sharedPreferences.getString("sw1", "false")));
-        user.setSwitch2(stringToBool(sharedPreferences.getString("sw2", "false")));
-        user.setSwitch3(stringToBool(sharedPreferences.getString("sw3", "false")));
-
-        return user;
     }
 
     private boolean checkCredentials(String userName, String pass) {

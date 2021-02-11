@@ -17,13 +17,14 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static io.github.no_such_company.smailclientapp.helper.AddressHelper.getHostFromAddress;
 import static io.github.no_such_company.smailclientapp.helper.AlternateHostHelper.getFinalDestinationHost;
 import static io.github.nosuchcompany.pgplug.utils.PGPUtils.readPublicKey;
 import static io.github.nosuchcompany.pgplug.utils.PGPUtils.readSecretKey;
 
 public class PGPPlugKeyHandler {
 
-    public PGPPublicKey fetchPublicKeyRingFromHost(User user) throws IOException {
+    public PGPPublicKey fetchPublicKeyRingFromHost(User user) {
         OkHttpClient client = new OkHttpClient();
 
         RequestBody requestBody = new MultipartBody.Builder()
@@ -39,29 +40,50 @@ public class PGPPlugKeyHandler {
                     .build();
             Response response = client.newCall(request).execute();
             return readPublicKey(response.body().bytes());
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
 
-    public PGPSecretKey fetchPrivateKeyRingFromHost(User user) throws IOException, PGPException {
-            OkHttpClient client = new OkHttpClient();
+    public PGPSecretKey fetchPrivateKeyRingFromHost(User user) {
+        OkHttpClient client = new OkHttpClient();
 
-            RequestBody requestBody = new MultipartBody.Builder()
-                    .setType(MultipartBody.FORM)
-                    .addFormDataPart("user", user.getAddress())
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("user", user.getAddress())
+                .build();
+
+        try {
+            Request request = null;
+            request = new Request.Builder()
+                    .url(getFinalDestinationHost(user.getHost()) + "/in/pubkey")
+                    .post(requestBody)
                     .build();
+            Response response = client.newCall(request).execute();
+            return readSecretKey(new ByteArrayInputStream(response.body().bytes()));
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
-            try {
-                Request request = null;
-                request = new Request.Builder()
-                        .url(getFinalDestinationHost(user.getHost()) + "/in/pubkey")
-                        .post(requestBody)
-                        .build();
-                Response response = client.newCall(request).execute();
-                return readSecretKey(new ByteArrayInputStream(response.body().bytes()));
-            }catch (Exception e){
-                return null;
-            }
+    public PGPPublicKey fetchRecipientsPublicKeyRingFromHost(String user) {
+        OkHttpClient client = new OkHttpClient();
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("user", user)
+                .build();
+
+        try {
+            Request request = null;
+            request = new Request.Builder()
+                    .url(getFinalDestinationHost(getHostFromAddress(user)) + "/in/pubkey")
+                    .post(requestBody)
+                    .build();
+            Response response = client.newCall(request).execute();
+            return readPublicKey(response.body().bytes());
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

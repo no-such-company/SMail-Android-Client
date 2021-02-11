@@ -18,7 +18,7 @@
             android:text="Recipients" />
 
         <EditText
-            android:id="@+id/editTextTextPersonName2"
+            android:id="@+id/reciepients_new_mail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -32,7 +32,7 @@
             android:text="Subject" />
 
         <EditText
-            android:id="@+id/editTextTextPersonName3"
+            android:id="@+id/subject_new_mail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -46,7 +46,7 @@
             android:text="Message" />
 
         <EditText
-            android:id="@+id/editTextTextMultiLine"
+            android:id="@+id/new_mail_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:ems="10"
@@ -62,7 +62,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="15dp"
         android:clickable="true"
-        app:backgroundTint="#C3C2C2"
+        app:backgroundTint="#177C02"
         app:srcCompat="@android:drawable/ic_menu_send" />
 
     <android.support.design.widget.FloatingActionButton
@@ -72,6 +72,6 @@
         android:layout_gravity="bottom|start"
         android:layout_margin="15dp"
         android:clickable="true"
-        app:backgroundTint="#FF5B5B"
+        app:backgroundTint="#3C3C3C"
         app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
 </android.support.design.widget.CoordinatorLayout>
