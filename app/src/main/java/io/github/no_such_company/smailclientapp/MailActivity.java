@@ -75,8 +75,12 @@ public class MailActivity extends AppCompatActivity {
                         getCacheDir()
                 );
 
-                if(mailSendHandler.isVerified()){
-                    mailSendHandler.send();
+                if (mailSendHandler.isVerified()) {
+                    if(!mailSendHandler.send()){
+                        Toast.makeText(MailActivity.this, "There was an error. Mail not send.", Toast.LENGTH_SHORT).show();
+                    };
+                } else {
+                    Toast.makeText(MailActivity.this, "Check your recipients", Toast.LENGTH_SHORT).show();
                 }
             }
         });

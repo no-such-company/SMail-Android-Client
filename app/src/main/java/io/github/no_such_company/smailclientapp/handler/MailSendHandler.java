@@ -63,12 +63,14 @@ public class MailSendHandler {
         return true;
     }
 
-    public void send() {
+    public boolean send() {
         try {
             doSend(recipients, new MailObject(subject, message, user.getAddress()));
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     private void doSend(List<String> recipientList, MailObject mailObject) throws NoSuchAlgorithmException, PGPException, SignatureException, NoSuchProviderException, IOException {
