@@ -2,7 +2,6 @@ package io.github.no_such_company.smailclientapp.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPublicKey;
 
@@ -35,21 +34,23 @@ import static io.github.no_such_company.smailclientapp.helper.AlternateHostHelpe
 
 
 public class MailSendHandler {
-    public static final String TEMP_SMAIL_MSG = "/temp_smail/msg";
+    public static final String TEMP_SMAIL_MSG = "msg";
 
     private List<String> recipients;
     private String subject;
     private String message;
     private User user;
     private PGPPlugKeyHandler pgpPlugKeyHandler;
+    private File cacheDir;
     OkHttpClient client;
 
-    public MailSendHandler(String recipients, String subject, String message, User user) {
+    public MailSendHandler(String recipients, String subject, String message, User user, File cacheDir) {
         this.recipients = Arrays.asList(recipients.split(";"));
         this.subject = subject;
         this.message = message;
         this.user = user;
         this.pgpPlugKeyHandler = new PGPPlugKeyHandler();
+        this.cacheDir = cacheDir;
         client = new OkHttpClient();
     }
 
@@ -87,7 +88,9 @@ public class MailSendHandler {
                     .url(getFinalDestinationHost(user.getHost()) + "/inbox/mail/send")
                     .post(requestBody)
                     .build();
-            Response response = client.newCall(request).execute();
+            client.newCall(request).execute();
+
+            cleanDir(cacheDir,getDirSize(cacheDir));
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -99,7 +102,8 @@ public class MailSendHandler {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(mailObject);
 
-        OutputStream outputStream = new FileOutputStream(TEMP_SMAIL_MSG);
+        File file = new File(cacheDir, TEMP_SMAIL_MSG);
+        OutputStream outputStream = new FileOutputStream(file);
 
         Set<PGPPublicKey> publicKeys = new HashSet<PGPPublicKey>();
         for (String recipient : recipients) {
@@ -110,11 +114,11 @@ public class MailSendHandler {
         SignedFileProcessor.signFile(
                 TEMP_SMAIL_MSG,
                 user.getPrivateKeyRing(),
-                new FileOutputStream(TEMP_SMAIL_MSG),
+                new FileOutputStream(file),
                 user.getKeyPass().toCharArray(),
                 true
         );
-        return new File(TEMP_SMAIL_MSG);
+        return new File(cacheDir, TEMP_SMAIL_MSG);
     }
 
     public String getToString(String[] arrayData) {
@@ -126,5 +130,34 @@ public class MailSendHandler {
             }
         }
         return stringBuilder.toString();
+    }
+
+    private static void cleanDir(File dir, long bytes) {
+
+        long bytesDeleted = 0;
+        File[] files = dir.listFiles();
+
+        for (File file : files) {
+            bytesDeleted += file.length();
+            file.delete();
+
+            if (bytesDeleted >= bytes) {
+                break;
+            }
+        }
+    }
+
+    private static long getDirSize(File dir) {
+
+        long size = 0;
+        File[] files = dir.listFiles();
+
+        for (File file : files) {
+            if (file.isFile()) {
+                size += file.length();
+            }
+        }
+
+        return size;
     }
 }

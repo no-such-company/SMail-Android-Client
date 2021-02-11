@@ -71,7 +71,9 @@ public class MailActivity extends AppCompatActivity {
                         recipientsInput.getText().toString(),
                         subjectInput.getText().toString(),
                         messageInput.getText().toString(),
-                        user);
+                        user,
+                        getCacheDir()
+                );
 
                 if(mailSendHandler.isVerified()){
                     mailSendHandler.send();
