@@ -81,7 +81,7 @@ public class MailSendHandler {
                 .addFormDataPart("user", user.getAddress())
                 .addFormDataPart("pwhash", user.getPasswd())
                 .addFormDataPart("recipients", getToString(recipientList.toArray(new String[recipientList.size()])))
-                .addFormDataPart("file", attachment.getName(), RequestBody.create(MediaType.parse("application/octet-stream"), attachment))
+                .addFormDataPart("attachments", attachment.getName(), RequestBody.create(MediaType.parse("application/octet-stream"), attachment))
                 .build();
 
         try {
@@ -113,6 +113,7 @@ public class MailSendHandler {
         }
 
         PGPUtils.encrypt(outputStream, json.getBytes(), publicKeys);
+        /*
         SignedFileProcessor.signFile(
                 TEMP_SMAIL_MSG,
                 user.getPrivateKeyRing(),
@@ -120,6 +121,7 @@ public class MailSendHandler {
                 user.getKeyPass().toCharArray(),
                 true
         );
+         */
         return new File(cacheDir, TEMP_SMAIL_MSG);
     }
 

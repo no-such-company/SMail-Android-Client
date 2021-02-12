@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.no_such_company.smailclientapp.adapter.MailBoxRecyclerViewAdapter;
 import io.github.no_such_company.smailclientapp.handler.MailSendHandler;
+import io.github.no_such_company.smailclientapp.handler.PGPPlugKeyHandler;
 import io.github.no_such_company.smailclientapp.handler.SharedPreferencesHandler;
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
 import io.github.no_such_company.smailclientapp.pojo.mailList.MailBox;
@@ -63,6 +64,10 @@ public class MailActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
+        PGPPlugKeyHandler keyHandler = new PGPPlugKeyHandler();
+        user.setPublicKeyRing(keyHandler.fetchPublicKeyRingFromHost(user));
+        user.setPrivateKeyRing(keyHandler.fetchPrivateKeyRingFromHost(user));
+
         FloatingActionButton fab = findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,7 +91,7 @@ public class MailActivity extends AppCompatActivity {
         });
 
         FloatingActionButton fab2 = findViewById(R.id.floatingActionButton2);
-        fab.setOnClickListener(new View.OnClickListener() {
+        fab2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();

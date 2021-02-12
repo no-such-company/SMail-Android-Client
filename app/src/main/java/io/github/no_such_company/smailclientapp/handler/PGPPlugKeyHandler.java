@@ -51,12 +51,13 @@ public class PGPPlugKeyHandler {
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("user", user.getAddress())
+                .addFormDataPart("hash", user.getPasswd())
                 .build();
 
         try {
             Request request = null;
             request = new Request.Builder()
-                    .url(getFinalDestinationHost(user.getHost()) + "/in/pubkey")
+                    .url(getFinalDestinationHost(user.getHost()) + "/inbox/privkey")
                     .post(requestBody)
                     .build();
             Response response = client.newCall(request).execute();
