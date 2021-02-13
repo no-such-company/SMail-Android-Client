@@ -87,4 +87,28 @@ public class PGPPlugKeyHandler {
             return null;
         }
     }
+
+    public ByteArrayInputStream fetchMailHeader(User user, String metaId, String fileId){
+        OkHttpClient client = new OkHttpClient();
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("user", user.getAddress())
+                .addFormDataPart("hash", user.getPasswd())
+                .addFormDataPart("mailId", metaId)
+                .addFormDataPart("fileId", fileId)
+                .build();
+
+        try {
+            Request request = null;
+            request = new Request.Builder()
+                    .url(getFinalDestinationHost(user.getHost()) + "/inbox/mail/file")
+                    .post(requestBody)
+                    .build();
+            Response response = client.newCall(request).execute();
+            return new ByteArrayInputStream(response.body().bytes());
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
