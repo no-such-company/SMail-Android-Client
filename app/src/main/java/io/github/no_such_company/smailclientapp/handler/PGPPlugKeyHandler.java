@@ -1,15 +1,9 @@
 package io.github.no_such_company.smailclientapp.handler;
 
-import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPublicKey;
-import org.bouncycastle.openpgp.PGPSecretKey;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URL;
 
-import io.github.no_such_company.smailclientapp.helper.ProtocolHelper;
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -20,7 +14,6 @@ import okhttp3.Response;
 import static io.github.no_such_company.smailclientapp.helper.AddressHelper.getHostFromAddress;
 import static io.github.no_such_company.smailclientapp.helper.AlternateHostHelper.getFinalDestinationHost;
 import static io.github.nosuchcompany.pgplug.utils.PGPUtils.readPublicKey;
-import static io.github.nosuchcompany.pgplug.utils.PGPUtils.readSecretKey;
 
 public class PGPPlugKeyHandler {
 
@@ -45,7 +38,7 @@ public class PGPPlugKeyHandler {
         }
     }
 
-    public PGPSecretKey fetchPrivateKeyRingFromHost(User user) {
+    public ByteArrayInputStream fetchPrivateKeyRingFromHost(User user) {
         OkHttpClient client = new OkHttpClient();
 
         RequestBody requestBody = new MultipartBody.Builder()
@@ -61,7 +54,7 @@ public class PGPPlugKeyHandler {
                     .post(requestBody)
                     .build();
             Response response = client.newCall(request).execute();
-            return readSecretKey(new ByteArrayInputStream(response.body().bytes()));
+            return new ByteArrayInputStream(response.body().bytes());
         } catch (Exception e) {
             return null;
         }
@@ -88,7 +81,7 @@ public class PGPPlugKeyHandler {
         }
     }
 
-    public ByteArrayInputStream fetchMailHeader(User user, String metaId, String fileId){
+    public ByteArrayInputStream fetchMailHeader(User user, String metaId, String fileId, String folder){
         OkHttpClient client = new OkHttpClient();
 
         RequestBody requestBody = new MultipartBody.Builder()
@@ -97,6 +90,7 @@ public class PGPPlugKeyHandler {
                 .addFormDataPart("hash", user.getPasswd())
                 .addFormDataPart("mailId", metaId)
                 .addFormDataPart("fileId", fileId)
+                .addFormDataPart("folder", folder)
                 .build();
 
         try {

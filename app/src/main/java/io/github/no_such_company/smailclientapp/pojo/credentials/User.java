@@ -3,6 +3,7 @@ package io.github.no_such_company.smailclientapp.pojo.credentials;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
 
+import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 
 public class User implements Serializable {
@@ -16,7 +17,7 @@ public class User implements Serializable {
     private boolean switch3;
 
     private PGPPublicKey publicKeyRing;
-    private PGPSecretKey privateKeyRing;
+    private ByteArrayInputStream privateKeyRing;
 
 
     public String getAddress() {
@@ -79,11 +80,11 @@ public class User implements Serializable {
         this.publicKeyRing = publicKeyRing;
     }
 
-    public PGPSecretKey getPrivateKeyRing() {
+    public ByteArrayInputStream getPrivateKeyRing() {
         return privateKeyRing;
     }
 
-    public void setPrivateKeyRing(PGPSecretKey privateKeyRing) {
+    public void setPrivateKeyRing(ByteArrayInputStream privateKeyRing) {
         this.privateKeyRing = privateKeyRing;
     }
 }

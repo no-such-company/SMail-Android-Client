@@ -2,18 +2,32 @@ package io.github.no_such_company.smailclientapp.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.bouncycastle.bcpg.ArmoredOutputStream;
+import org.bouncycastle.openpgp.PGPCompressedData;
+import org.bouncycastle.openpgp.PGPCompressedDataGenerator;
+import org.bouncycastle.openpgp.PGPEncryptedData;
+import org.bouncycastle.openpgp.PGPEncryptedDataGenerator;
 import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPLiteralData;
+import org.bouncycastle.openpgp.PGPLiteralDataGenerator;
 import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.operator.jcajce.JcePGPDataEncryptorBuilder;
+import org.bouncycastle.openpgp.operator.jcajce.JcePublicKeyKeyEncryptionMethodGenerator;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.security.SignatureException;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +49,8 @@ import static io.github.no_such_company.smailclientapp.helper.AlternateHostHelpe
 
 public class MailSendHandler {
     public static final String TEMP_SMAIL_MSG = "msg";
+    private static boolean isArmored = true;
+    private static final boolean withIntegrityCheck = true;
 
     private List<String> recipients;
     private String subject;
@@ -73,7 +89,7 @@ public class MailSendHandler {
         return false;
     }
 
-    private void doSend(List<String> recipientList, MailObject mailObject) throws NoSuchAlgorithmException, PGPException, SignatureException, NoSuchProviderException, IOException {
+    private void doSend(List<String> recipientList, MailObject mailObject) throws IOException {
         File attachment = createAttachment(mailObject);
 
         RequestBody requestBody = new MultipartBody.Builder()
@@ -100,7 +116,7 @@ public class MailSendHandler {
         }
     }
 
-    private File createAttachment(MailObject mailObject) throws IOException, PGPException, SignatureException, NoSuchAlgorithmException, NoSuchProviderException {
+    private File createAttachment(MailObject mailObject) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(mailObject);
 
@@ -112,7 +128,9 @@ public class MailSendHandler {
             publicKeys.add(pgpPlugKeyHandler.fetchRecipientsPublicKeyRingFromHost(recipient));
         }
 
-        PGPUtils.encrypt(outputStream, json.getBytes(), publicKeys);
+        PGPUtils.encrypt(outputStream, json.getBytes(Charset.defaultCharset()), publicKeys);
+        outputStream.flush();
+        outputStream.close();
         return file;
     }
 

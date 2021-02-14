@@ -8,6 +8,8 @@ import android.view.View;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.github.no_such_company.smailclientapp.handler.MetaHandler;
+import io.github.no_such_company.smailclientapp.handler.PGPPlugKeyHandler;
 import io.github.no_such_company.smailclientapp.handler.SharedPreferencesHandler;
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
 import io.github.no_such_company.smailclientapp.pojo.mailList.MailBox;
@@ -53,12 +55,15 @@ public class MailsActivity extends AppCompatActivity {
             intent.putExtra("user", user);
             startActivity(intent);
         }
+        PGPPlugKeyHandler pgpPlugKeyHandler = new PGPPlugKeyHandler();
+        user.setPrivateKeyRing(pgpPlugKeyHandler.fetchPrivateKeyRingFromHost(user));
 
         FloatingActionButton fab = findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MailsActivity.this, MailActivity.class);
+                user.setPrivateKeyRing(null);
                 intent.putExtra("user", user);
                 startActivity(intent);
             }
@@ -84,7 +89,9 @@ public class MailsActivity extends AppCompatActivity {
             for(MailFolder folders : mailBox.getFolder()){
                 DefaultTreeNode<String> folder = new DefaultTreeNode<String>(folders.getFolderName());
                 for(Mails mail :folders.getMails()) {
-                    folder.addChild(new DefaultTreeNode<String>(mail.getMailId()));
+                    folder.addChild(new DefaultTreeNode<String>(
+                            new MetaHandler(user, mail.getMailId(), "msg", folders.getFolderName(), getCacheDir()).getSubjectFromMSG()
+                    ));
                 }
                 root.addChild(folder);
             }
