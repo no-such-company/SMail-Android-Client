@@ -55,9 +55,6 @@ public class MailsActivity extends AppCompatActivity {
             intent.putExtra("user", user);
             startActivity(intent);
         }
-        PGPPlugKeyHandler pgpPlugKeyHandler = new PGPPlugKeyHandler();
-        user.setPrivateKeyRing(pgpPlugKeyHandler.fetchPrivateKeyRingFromHost(user));
-
         FloatingActionButton fab = findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
