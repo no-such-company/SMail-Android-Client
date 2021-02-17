@@ -8,8 +8,7 @@ import android.view.View;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.github.no_such_company.smailclientapp.handler.MetaHandler;
-import io.github.no_such_company.smailclientapp.handler.PGPPlugKeyHandler;
+import io.github.no_such_company.smailclientapp.handler.MsgHandler;
 import io.github.no_such_company.smailclientapp.handler.SharedPreferencesHandler;
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
 import io.github.no_such_company.smailclientapp.pojo.mailList.MailBox;
@@ -87,7 +86,7 @@ public class MailsActivity extends AppCompatActivity {
                 DefaultTreeNode<String> folder = new DefaultTreeNode<String>(folders.getFolderName());
                 for(Mails mail :folders.getMails()) {
                     folder.addChild(new DefaultTreeNode<String>(
-                            new MetaHandler(user, mail.getMailId(), "msg", folders.getFolderName(), getCacheDir()).getSubjectFromMSG()
+                            new MsgHandler(user, mail.getMailId(), "msg", folders.getFolderName(), getCacheDir()).getSubjectFromMSG()
                     ));
                 }
                 root.addChild(folder);

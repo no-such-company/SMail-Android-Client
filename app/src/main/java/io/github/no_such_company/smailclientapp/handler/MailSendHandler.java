@@ -45,6 +45,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static io.github.no_such_company.smailclientapp.helper.AlternateHostHelper.getFinalDestinationHost;
+import static io.github.no_such_company.smailclientapp.helper.ShaHelper.getHash;
 
 
 public class MailSendHandler {
@@ -89,7 +90,10 @@ public class MailSendHandler {
         return false;
     }
 
-    private void doSend(List<String> recipientList, MailObject mailObject) throws IOException {
+    private void doSend(List<String> recipientList, MailObject mailObject) throws Exception {
+        PGPPlugKeyHandler pgpPlugKeyHandler = new PGPPlugKeyHandler();
+        user.setPrivateKeyRing(pgpPlugKeyHandler.fetchPrivateKeyRingFromHost(user));
+
         File attachment = createAttachment(mailObject);
 
         RequestBody requestBody = new MultipartBody.Builder()
@@ -116,7 +120,7 @@ public class MailSendHandler {
         }
     }
 
-    private File createAttachment(MailObject mailObject) throws IOException {
+    private File createAttachment(MailObject mailObject) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(mailObject);
 
@@ -131,6 +135,15 @@ public class MailSendHandler {
         PGPUtils.encrypt(outputStream, json.getBytes(Charset.defaultCharset()), publicKeys);
         outputStream.flush();
         outputStream.close();
+
+        File sign_file = new File(cacheDir, TEMP_SMAIL_MSG);
+        SignedFileProcessor.signFile(
+                sign_file.getAbsolutePath(),
+                user.getPrivateKeyRing(),
+                new FileOutputStream(sign_file),
+                getHash(user.getKeyPass()).toCharArray(),
+                true
+        );
         return file;
     }
 

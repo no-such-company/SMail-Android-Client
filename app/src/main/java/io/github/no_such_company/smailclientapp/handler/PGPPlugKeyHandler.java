@@ -60,6 +60,28 @@ public class PGPPlugKeyHandler {
         }
     }
 
+    public ByteArrayInputStream fetchPublicKeyRingFromHost(String sender) {
+        OkHttpClient client = new OkHttpClient();
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("user", sender)
+                .build();
+
+        try {
+            Request request = null;
+            request = new Request.Builder()
+                    .url(getFinalDestinationHost(getHostFromAddress(sender)) + "/inbox/pubkey")
+                    .post(requestBody)
+                    .build();
+            Response response = client.newCall(request).execute();
+            return new ByteArrayInputStream(response.body().bytes());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
     public PGPPublicKey fetchRecipientsPublicKeyRingFromHost(String user) {
         OkHttpClient client = new OkHttpClient();
 
