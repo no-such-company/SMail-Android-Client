@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.github.no_such_company.smailclientapp.handler.MetaHandler;
 import io.github.no_such_company.smailclientapp.handler.MsgHandler;
 import io.github.no_such_company.smailclientapp.handler.SharedPreferencesHandler;
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
@@ -27,6 +28,8 @@ import static io.github.no_such_company.smailclientapp.helper.AlternateHostHelpe
 
 public class MailsActivity extends AppCompatActivity {
 
+    public static final String META = "meta";
+    public static final String MSG = "msg";
     private User user;
 
     private MailBox mailBox;
@@ -44,12 +47,12 @@ public class MailsActivity extends AppCompatActivity {
 
         OkHttpClient client = new OkHttpClient();
 
-        try{
+        try {
             user = (User) getIntent().getSerializableExtra("user");
-        } catch (Exception e){
+        } catch (Exception e) {
             user = new SharedPreferencesHandler(this.getApplicationContext()).fetchUserObjectFromStorage();
         }
-        if(user.getKeyPass() == null || user.getPasswd() == null){
+        if (user.getKeyPass() == null || user.getPasswd() == null) {
             Intent intent = new Intent(MailsActivity.this, MainActivity.class);
             intent.putExtra("user", user);
             startActivity(intent);
@@ -70,11 +73,11 @@ public class MailsActivity extends AppCompatActivity {
                 .addFormDataPart("user", user.getAddress())
                 .addFormDataPart("hash", user.getPasswd())
                 .build();
-        try{
-        Request request = new Request.Builder()
-                .url(getFinalDestinationHost(user.getAddress().split("//:")[0]) + "/inbox/mails")
-                .post(requestBody)
-                .build();
+        try {
+            Request request = new Request.Builder()
+                    .url(getFinalDestinationHost(user.getAddress().split("//:")[0]) + "/inbox/mails")
+                    .post(requestBody)
+                    .build();
 
             Response response = client.newCall(request).execute();
             ObjectMapper objectMapper = new ObjectMapper();
@@ -82,11 +85,15 @@ public class MailsActivity extends AppCompatActivity {
 
             root = new DefaultTreeNode<String>(user.getAddress());
 
-            for(MailFolder folders : mailBox.getFolder()){
+            for (MailFolder folders : mailBox.getFolder()) {
                 DefaultTreeNode<String> folder = new DefaultTreeNode<String>(folders.getFolderName());
-                for(Mails mail :folders.getMails()) {
+                for (Mails mail : folders.getMails()) {
+                    MetaHandler metaHandler = new MetaHandler(user, mail.getMailId(), META, folders.getFolderName());
+                    String sender = metaHandler.build().getSender();
+                    MsgHandler msgHandler = new MsgHandler(user, mail.getMailId(), MSG, folders.getFolderName(), sender);
+
                     folder.addChild(new DefaultTreeNode<String>(
-                            new MsgHandler(user, mail.getMailId(), "msg", folders.getFolderName(), getCacheDir()).getSubjectFromMSG()
+                            msgHandler.build().getSubject().concat("\n\r").concat(sender)
                     ));
                 }
                 root.addChild(folder);
@@ -96,7 +103,7 @@ public class MailsActivity extends AppCompatActivity {
             treeView.setRoot(root);
             treeView.setDefaultAnimation(true);
             treeView.requestLayout();
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }

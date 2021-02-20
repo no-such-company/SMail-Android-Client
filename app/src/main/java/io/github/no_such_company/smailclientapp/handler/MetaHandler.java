@@ -4,69 +4,59 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
 
-import io.github.no_such_company.smailclientapp.bytestream.ByteArrayInOutStream;
 import io.github.no_such_company.smailclientapp.pojo.credentials.User;
-import io.github.no_such_company.smailclientapp.pojo.mail.MailObject;
-import io.github.nosuchcompany.pgplug.sign.SignedFileProcessor;
+import io.github.no_such_company.smailclientapp.pojo.meta.InBoxMetaData;
 import io.github.nosuchcompany.pgplug.utils.PGPUtils;
 
 import static io.github.no_such_company.smailclientapp.helper.ShaHelper.getHash;
 
-public class MsgHandler {
+public class MetaHandler {
 
     private ByteArrayInputStream inputStream;
 
     private User user;
 
-    private String sender;
-
     private JsonNode node;
 
-    private MailObject mailObject;
+    private InBoxMetaData metaObject;
 
-    public MsgHandler(User user, String metaId, String fileId, String folder, String sender) {
+    public MetaHandler(User user, String metaId, String fileId, String folder) {
         PGPPlugKeyHandler pgpPlugKeyHandler = new PGPPlugKeyHandler();
         inputStream = pgpPlugKeyHandler.fetchMailHeader(user, metaId, fileId, folder);
         this.user = user;
-        this.sender = sender;
         getMsgFromServer();
     }
 
-    public MailObject build(){
-        mailObject = new MailObject();
+    public InBoxMetaData build(){
+        metaObject = new InBoxMetaData();
 
-        setContent();
+        setTimeCode();
         setSender();
-        setSubject();
+        setMailId();
 
-        return mailObject;
-    }
-
-    public void setSubject(){
-        mailObject.setSubject(node.get("subject").asText());
-    }
-
-    public void setContent(){
-        mailObject.setContent(node.get("content").asText());
+        return metaObject;
     }
 
     public void setSender(){
-        mailObject.setSender(node.get("sender").asText());
+        metaObject.setSender(node.get("sender").asText());
+    }
+
+    public void setTimeCode(){
+        metaObject.setTimecode(node.get("timeCode").asLong());
+    }
+
+    public void setMailId(){
+        metaObject.setMailId(node.get("mailId").asText());
     }
 
     private String getMsgFromServer() {
         try {
             PGPPlugKeyHandler pgpPlugKeyHandler = new PGPPlugKeyHandler();
             user.setPrivateKeyRing(pgpPlugKeyHandler.fetchPrivateKeyRingFromHost(user));
-            InputStream pubKey = pgpPlugKeyHandler.fetchPublicKeyRingFromHost(sender);
-
-            ByteArrayInOutStream designed = (ByteArrayInOutStream) SignedFileProcessor.verifyFile(inputStream, pubKey);
 
             byte[] dec = PGPUtils.decrypt(
-                    designed.getInputStream(),
+                    inputStream,
                     user.getPrivateKeyRing(),
                     getHash(user.getKeyPass()).toCharArray());
 
