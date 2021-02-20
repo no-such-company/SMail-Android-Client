@@ -11,6 +11,11 @@ public class MailObject {
         this.sender = sender;
     }
 
+    public MailObject() {
+    }
+
+    ;
+
     public String getSubject() {
         return subject;
     }
